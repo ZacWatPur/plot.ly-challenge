@@ -6,7 +6,7 @@ function init() {
     
   var menu = d3.select("#selDataset");
     
-  d3.json("samples.json").then((data) => {
+  d3.json("static/samples.json").then((data) => {
     var sampleName = data.names;
       
     sampleName.forEach((sample) => {
@@ -15,9 +15,9 @@ function init() {
       
   // Build initial plots with first set of data
          
-//  var samp1 = sampleName[0];
-//  buildCharts(samp1);
-//  buildMetadata(samp1);
+  var samp1 = sampleName[0];
+  buildCharts(samp1);
+  buildMetadata(samp1);
   }); 
 }
 
@@ -28,20 +28,17 @@ init();
 
 // Build the demographics panel
 
-function newOption(newSample) {
+function optionChanged(newSample) {
   // Grabbing new data for each new sample
-  buildCharts(newSample);
-  buildMetadata(newSample);  
+  buildMetadata(newSample);
+  buildCharts(newSample);  
 };
 
 function buildMetadata(newSample) {
-  d3.json("samples.json").then((data) => {
+  d3.json("static/samples.json").then((data) => {
     var meta = data.metadata;
-    // Filter data for requested sample Number
-    
     var arrResult = meta.filter(sampleObj => sampleObj.id == newSample);
     var result = arrResult[0];
-    // Using d3 to slelct corresponding panel
     var panel = d3.select("#sample-metadata");
     
     // clearing existing meadata
@@ -56,18 +53,17 @@ function buildMetadata(newSample) {
 
 // buildCharts function creation
 function buildCharts(newSample) {
-  d3.json("samples.json").then((data) => {
+  d3.json("static/samples.json").then((data) => {
   
   var meta = data.metadata;
   console.log(meta);
   
   var resultsFiltered = meta.filter(sampleName => sampleName.id == newSample);
-  
-  var cSamples = data.samples;
-  
-  var cSelected = cSamples.filter(sampleName => sampleName.id == newSample);
-  
   var sample1 = resultsFiltered[0];
+
+  var cSamples = parseFloat(sample1.wfreq);
+  var cSelected = data.samples;  
+
   
   // variables to hold ids, labesl, and values
   var otu_ids = cSelected.otu_ids;
@@ -75,13 +71,14 @@ function buildCharts(newSample) {
   var sampleValues = cSelected.sample_values;
   
   // ytics for the bar charts
-  var ytics = otu_ids.slice(0,10).reverse();
+  var yTenOtu = otu_ids.slice(0, 10).reverse();
+  var ytics = yTenOtu.map(OTU => ("OTU " + OTU + " -"));
   
   // trace for bar chart
   var barData = [{
     x: sampleValues.slice(0,10).reverse(),
     y: ytics,
-    text: out_labesl.reverse(),
+    text: out_labels.reverse(),
     text: "bar",
     orientation: "h"
   }];
